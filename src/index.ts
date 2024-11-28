@@ -99,7 +99,7 @@ const processLogsFolder = async (folderPath: string): Promise<void> => {
 
     fs.writeFileSync(outputFolderPath, JSON.stringify(fileData, null, 2));
     console.log(`Results saved - ${outputFolderPath}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error:", error.message);
   }
 };

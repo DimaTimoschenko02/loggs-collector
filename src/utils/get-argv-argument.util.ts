@@ -5,7 +5,7 @@ export function getArgvArgumentUtil<T extends boolean>(
   const index = process.argv.findIndex((arg) => arg.includes(name));
 
   if (index === -1) {
-    if (nullable) return null;
+    if (nullable) return null as any;
     throw new Error(`Provide ${name}`);
   }
   return process.argv[index + 1];
