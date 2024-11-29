@@ -2,25 +2,29 @@ import fs from "fs";
 import * as readline from "node:readline";
 import path from "path";
 import { getArgvArgumentUtil } from "./utils/get-argv-argument.util";
-import {
-  getChartCoeefsByFixtureId,
-  getInplayEventsByMatchId,
-  getInplayLeaguesByFixtureId,
-  getInplayMainIsportsByMatchId,
-  getInplayStatsByMatchId,
-  getInplayTeamsByfixtureId,
-  getMatchById,
-  getPrematchAsian,
-  getPrematchTotal,
-  getPrematchWin,
-} from "./database/database.service";
+import collectDbData from "./utils/collect-db-data.util";
+import collectRedisData from "./utils/collect-redis-data.util";
 
-const logsFolder = getArgvArgumentUtil("logs_path", false);
+console.log(process.argv);
+
+const outputFilePath = getArgvArgumentUtil("res_path", true);
+const logsFolder = path.resolve(
+  process.cwd(),
+  `../${getArgvArgumentUtil("logs_path", false)}`,
+);
 const fixtureId = getArgvArgumentUtil("fixture_id", false);
-const outputFile = getArgvArgumentUtil("res_path", true)
-  ? `${fixtureId}-${getArgvArgumentUtil("res_path", true)}.json`
+const outputFile = outputFilePath
+  ? `${fixtureId}-${outputFilePath}.json`
   : `${fixtureId}-data.json`;
-const outputFolderPath = `./match-logs/${outputFile}`;
+const outputFolderPath = `./match-logs/${outputFile}.json`;
+
+console.log({
+  logsFolder,
+  fixtureId,
+  outputFile,
+  outputFilePath,
+  outputFolderPath,
+});
 
 const matchingLogs: any[] = [];
 
@@ -59,43 +63,19 @@ const processLogsFolder = async (folderPath: string): Promise<void> => {
       await processLogFile(filePath);
     }
 
-    const [
-      fixture,
-      events,
-      stats,
-      main_isports,
-      teams,
-      chart_coeff,
-      leagues,
-      prematch_asian,
-      prematch_win,
-      prematch_total,
-    ] = await Promise.all([
-      getMatchById(fixtureId),
-      getInplayEventsByMatchId(fixtureId),
-      getInplayStatsByMatchId(fixtureId),
-      getInplayMainIsportsByMatchId(fixtureId),
-      getInplayTeamsByfixtureId(fixtureId),
-      getChartCoeefsByFixtureId(fixtureId),
-      getInplayLeaguesByFixtureId(fixtureId),
-      getPrematchAsian(fixtureId),
-      getPrematchWin(fixtureId),
-      getPrematchTotal(fixtureId),
+    const [dbData, redisData] = await Promise.all([
+      collectDbData(fixtureId),
+      collectRedisData(fixtureId),
     ]);
 
     const fileData = {
-      fixture,
-      events,
-      stats,
-      main_isports,
-      teams,
-      chart_coeff,
-      leagues,
-      prematch_asian,
-      prematch_win,
-      prematch_total,
-      logs: matchingLogs,
+      fixtureId,
+      logs: logFiles,
+      redis: redisData,
+      db: dbData,
     };
+
+    console.dir(fileData, { depth: null });
 
     fs.writeFileSync(outputFolderPath, JSON.stringify(fileData, null, 2));
     console.log(`Results saved - ${outputFolderPath}`);
@@ -103,5 +83,12 @@ const processLogsFolder = async (folderPath: string): Promise<void> => {
     console.error("Error:", error.message);
   }
 };
+
+// collectDbData("zp5rzgh5dnylq82").then((data) =>
+//   console.dir({ db: data }, { depth: null }),
+// );
+// collectRedisData("zp5rzgh5dnylq82").then((data) =>
+//   console.dir({ redis: data }, { depth: null }),
+// );
 
 processLogsFolder(logsFolder).then(() => console.log("finished"));

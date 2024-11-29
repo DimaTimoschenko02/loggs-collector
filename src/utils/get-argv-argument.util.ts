@@ -8,5 +8,6 @@ export function getArgvArgumentUtil<T extends boolean>(
     if (nullable) return null as any;
     throw new Error(`Provide ${name}`);
   }
-  return process.argv[index + 1];
+
+  return process.argv[index].split("=")[1];
 }
