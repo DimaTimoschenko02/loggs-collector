@@ -16,7 +16,7 @@ const fixtureId = getArgvArgumentUtil("fixture_id", false);
 const outputFile = outputFilePath
   ? `${fixtureId}-${outputFilePath}.json`
   : `${fixtureId}-data.json`;
-const outputFolderPath = `./match-logs/${outputFile}.json`;
+const outputFolderPath = `./match-logs/${outputFile}-${Date.now()}.json`;
 
 console.log({
   logsFolder,
