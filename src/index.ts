@@ -75,7 +75,7 @@ const processLogsFolder = async (folderPath: string): Promise<void> => {
       db: dbData,
     };
 
-    console.dir(fileData, { depth: null });
+    // console.dir(fileData, { depth: null });
 
     fs.writeFileSync(outputFolderPath, JSON.stringify(fileData, null, 2));
     console.log(`Results saved - ${outputFolderPath}`);
