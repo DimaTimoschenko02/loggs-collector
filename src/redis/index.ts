@@ -7,7 +7,7 @@ dotenv.config();
 let redis = new Redis({
   host: process.env.REDIS_HOST,
   password: process.env.REDIS_PASSWORD,
-  port: process.env.REDIS_PORT,
+  port: +process.env.REDIS_PORT,
 });
 
 const jsonRedis = new JSONCache(redis, { prefix: "cache:" });
