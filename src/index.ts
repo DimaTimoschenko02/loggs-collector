@@ -70,7 +70,7 @@ const processLogsFolder = async (folderPath: string): Promise<void> => {
 
     const fileData = {
       fixtureId,
-      logs: logFiles,
+      logs: matchingLogs,
       redis: redisData,
       db: dbData,
     };
